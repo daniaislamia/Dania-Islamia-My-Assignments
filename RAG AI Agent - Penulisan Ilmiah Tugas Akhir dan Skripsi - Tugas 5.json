@@ -1,0 +1,184 @@
+{
+  "name": "RAG AI Agent - Penulisan Ilmiah Tugas Akhir dan Skripsi - Tugas 5 .",
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.5,
+      "position": [
+        0,
+        0
+      ],
+      "id": "cbbb5e9f-a7d9-49de-97d4-303e45a3839f",
+      "name": "When chat message received",
+      "webhookId": "ecaea3ed-06e4-4e50-b2e7-542514b4ce67"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "Kamu adalah asisten AI yang membantu menjawab pertanyaan seputar penulisan ilmiah tugas akhir dan skripsi. Gunakan informasi yang tersedia pada tool Supabase Vector Store sebagai sumber utama jawaban. Jawablah dengan bahasa Indonesia yang jelas, sederhana, dan sesuai dengan isi dokumen. Jika informasi yang ditanyakan tidak terdapat dalam dokumen, sampaikan bahwa informasi tersebut tidak ditemukan dalam sumber yang tersedia dan jangan mengarang jawaban."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        224,
+        0
+      ],
+      "id": "2a5f4821-01b1-4108-b1f7-ab46ac39c42c",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.5-flash-lite",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        96,
+        208
+      ],
+      "id": "e72afb54-ae55-4a8b-8781-82fbc86e2d1d",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "sTyMKxKmAVg79Rxy",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        240,
+        208
+      ],
+      "id": "2915f632-9e22-49b4-87b9-6d7ee4ad2d2a",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Mencari informasi tentang penulisan ilmiah tugas akhir dan skripsi berdasarkan dokumen yang tersimpan di Supabase Vector Store.\n\nSaat menggunakan tool ini, selalu kirim input dalam bentuk JSON object dengan satu field bernama \"query\", bukan teks biasa.\nFormat input:\n{\"query\":\"pertanyaan yang ingin dicari\"}",
+        "tableName": {
+          "__rl": true,
+          "value": "tugas5_penulisan_ilmiah",
+          "mode": "list",
+          "cachedResultName": "tugas5_penulisan_ilmiah"
+        },
+        "topK": 200,
+        "options": {
+          "queryName": "match_documents_tugas5"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        480,
+        240
+      ],
+      "id": "75272a77-882c-4978-a1f0-1015e4afef2e",
+      "name": "Supabase Vector Store",
+      "credentials": {
+        "supabaseApi": {
+          "id": "f7eY0ZpVMBZZgr96",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        576,
+        448
+      ],
+      "id": "1d1359ec-4dc9-49d2-9ce5-d41b7f372cb8",
+      "name": "Embeddings Google Gemini",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "sTyMKxKmAVg79Rxy",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase Vector Store": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Google Gemini": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Supabase Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "cd475170-1a27-4fbf-8866-1978006ea56e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "dc96f10ae7dc95d3c138575ba243a0a167923dbcb524841d451aadf9135d5fb3"
+  },
+  "nodeGroups": [],
+  "id": "289PJtiBCBydQ69Y",
+  "tags": []
+}
